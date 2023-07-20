@@ -260,7 +260,6 @@ public class CantanteDAO implements ICantanteDAO {
             System.out.println(contReg);
             long pos = 4;
             
-            // archivoLectura.seek(n);
 
             for (int i = 0; i < contReg; i++) {
                 System.out.println("entro?");
