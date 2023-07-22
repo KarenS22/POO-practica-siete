@@ -42,17 +42,17 @@ public class CantanteDAO implements ICantanteDAO {
         try {
             RandomAccessFile archivoCrearCantante;
             archivoCrearCantante = new RandomAccessFile(ruta, "rw");
-            archivoCrearCantante.seek(0);        
+            archivoCrearCantante.seek(0);
             //4 b
-            if (archivoCrearCantante.length() == 0 || archivoCrearCantante.length() <375){
+            if (archivoCrearCantante.length() == 0 || archivoCrearCantante.length() < 375) {
                 archivoCrearCantante.writeInt(1);
-             } else{
+            } else {
                 archivoCrearCantante.seek(0);
                 int contReg = archivoCrearCantante.readInt();
                 archivoCrearCantante.seek(0);
-                archivoCrearCantante.writeInt(contReg+1);
+                archivoCrearCantante.writeInt(contReg + 1);
             }
-            
+
             long pos = archivoCrearCantante.length();
             archivoCrearCantante.seek(pos);
 
@@ -84,14 +84,16 @@ public class CantanteDAO implements ICantanteDAO {
             // 4 bytes
             archivoCrearCantante.writeInt(cantante.getNumeroDeGiras());
             // segun calculos 123 bytes cada registro sin canciones y con el contador 
-            // total de la primera 127 por contador
-            //disco espacio pa 10 discos  cada disco pesaria 25 b y por el utf + 2b
-            //entonces cada registro es de 379 -4
+            // total de la primera 127 por el contador
+            //disco espacio pa 10 discos  cada disco pesaria 25 b y por el utf + 2b + 4b de un contDisco
+            //entonces cada registro es de 383 -4 contCan
             /*
             codigo 4b
             nombre 15 + 2 b
             anio lanza 4b 
              */
+            System.out.println(archivoCrearCantante.length());
+            archivoCrearCantante.writeInt(0);
             System.out.println(archivoCrearCantante.length());
             archivoCrearCantante.writeUTF(rellenarEspacios("", 250));
             System.out.println(archivoCrearCantante.length());
@@ -117,7 +119,7 @@ public class CantanteDAO implements ICantanteDAO {
             archivoLecturaCantante = new RandomAccessFile(ruta, "r");
             archivoLecturaCantante.seek(0);
             int contReg = archivoLecturaCantante.readInt();
-            System.out.println(contReg);
+            System.out.println("Cont Can Buscar"+contReg);
             long pos = 4;
             // archivoLectura.seek(n);
 
@@ -142,7 +144,7 @@ public class CantanteDAO implements ICantanteDAO {
                     archivoLecturaCantante.close();
                     return c;
                 }
-                pos += 375;
+                pos += 379;
                 System.out.println("pos nuevo " + pos);
 
             }
@@ -177,12 +179,14 @@ public class CantanteDAO implements ICantanteDAO {
                     System.out.println(pos);
                     // archivoCantante.writeInt(cantanteActualizado.getCodigo());
                     System.out.println(pos);
-                    archivoCantante.writeUTF(rellenarEspacios(cantanteActualizado.getNombre(), 10));
-                    archivoCantante.writeUTF(rellenarEspacios(cantanteActualizado.getApellido(), 10));
+                    //15 + 2 by
+                    archivoCantante.writeUTF(rellenarEspacios(cantanteActualizado.getNombre(), 15));
+                    //15 + 2 b
+                    archivoCantante.writeUTF(rellenarEspacios(cantanteActualizado.getApellido(), 15));
                     archivoCantante.writeInt(cantanteActualizado.getEdad());
-                    archivoCantante.writeUTF(rellenarEspacios(cantanteActualizado.getNacionalidad(), 10));
+                    archivoCantante.writeUTF(rellenarEspacios(cantanteActualizado.getNacionalidad(), 25));
                     archivoCantante.writeDouble(cantanteActualizado.getSalario());
-                    archivoCantante.writeUTF(rellenarEspacios(cantanteActualizado.getNombreArtistico(), 10));
+                    archivoCantante.writeUTF(rellenarEspacios(cantanteActualizado.getNombreArtistico(), 20));
                     archivoCantante.writeUTF(rellenarEspacios(cantanteActualizado.getGeneroMusical(), 10));
                     archivoCantante.writeInt(cantanteActualizado.getNumeroDeSencillos());
                     archivoCantante.writeInt(cantanteActualizado.getNumeroDeConciertos());
@@ -190,7 +194,7 @@ public class CantanteDAO implements ICantanteDAO {
                     archivoCantante.close();
                     //return true; // Actualización exitosa
                 }
-                pos += 375; // La longitud de cada registro es de 375 bytes
+                pos += 379; // La longitud de cada registro es de 375 bytes
             }
 
             archivoCantante.close();
@@ -220,23 +224,23 @@ public class CantanteDAO implements ICantanteDAO {
                     // Encontramos el registro que coincide con el código, ahora actualizamos los datos
                     System.out.println(pos);
                     for (int j = i; j < contReg - 1; j++) {
-                        long origen = pos + 375;
+                        long origen = pos + 379;
                         long destino = pos;
                         byte[] buffer = new byte[375];
                         archivoCantante.seek(origen);
                         archivoCantante.read(buffer);
                         archivoCantante.seek(destino);
                         archivoCantante.write(buffer);
-                        pos += 375;
+                        pos += 379;
                     }
                     // Ajustamos la cantidad de registros en el archivo
                     archivoCantante.setLength(archivoCantante.length() - 375);
-                    contReg-=1;
+                    contReg -= 1;
                     archivoCantante.seek(0);
                     archivoCantante.writeInt(contReg);
                     archivoCantante.close();
                 }
-                pos += 375; // La longitud de cada registro es de 375 bytes
+                pos += 379; // La longitud de cada registro es de 375 bytes
             }
 
             archivoCantante.close();
@@ -259,7 +263,6 @@ public class CantanteDAO implements ICantanteDAO {
             int contReg = archivoLecturaCantante.readInt();
             System.out.println(contReg);
             long pos = 4;
-            
 
             for (int i = 0; i < contReg; i++) {
                 System.out.println("entro?");
@@ -277,12 +280,12 @@ public class CantanteDAO implements ICantanteDAO {
                 int nConciertos = archivoLecturaCantante.readInt();
                 int nGiras = archivoLecturaCantante.readInt();
 
-                Cantante c = new Cantante(nombreArtistico, generoMusical, nSencillos, nConciertos, nGiras,codigoL, nombre, apellido, edad, nacionalidad, salario);
-                
+                Cantante c = new Cantante(nombreArtistico, generoMusical, nSencillos, nConciertos, nGiras, codigoL, nombre, apellido, edad, nacionalidad, salario);
+
                 listaCantante.add(c);
                 //archivoLecturaCantante.close();
-                
-                pos += 375;
+
+                pos += 379;
                 System.out.println("pos nuevo " + pos);
 
             }
@@ -310,6 +313,97 @@ public class CantanteDAO implements ICantanteDAO {
             }
         }
         return null;
+    }
+
+    @Override
+    public void createDisco(int codigoCantante, int codigoDisco, String nombre, int anioDeLanzamiento) {
+        try {
+            System.out.println(codigoCantante);
+            RandomAccessFile archivoCantante;
+            archivoCantante = new RandomAccessFile(ruta, "rw");
+
+            archivoCantante.seek(0);
+            int contReg = archivoCantante.readInt();
+            System.out.println("contadorCantante: "+contReg);
+            long pos = 4;
+            
+            for (int i = 0; i < contReg; i++) {
+                
+                archivoCantante.seek(pos);
+                int codigoL = archivoCantante.readInt();
+                System.out.println(pos + "leida del can");
+                //4 b   383
+                System.out.println("codigo " + codigoL);
+                if (codigoL == codigoCantante) {
+                    long posD = pos;
+                    //127  506
+                    posD += 123;
+                    archivoCantante.seek(posD);
+                    System.out.println("pa ingresar disco "+posD);
+                    //131
+                    int contDisco = archivoCantante.readInt();
+                    System.out.println("contDisco "+posD + " xd "+contDisco);
+                    if (contDisco <= 10) {
+                        //127
+                        
+                        //131
+                        archivoCantante.seek(posD);
+                        archivoCantante.writeInt(contDisco + 1);
+                        System.out.println(posD);
+                        
+                        if (contDisco+1 > 1){
+                            posD = posD + (contDisco*25);
+                            archivoCantante.seek(posD);
+                        }
+                        //codigo Disco 4 b   135
+                        archivoCantante.writeInt(codigoDisco);
+                        System.out.println(posD);
+                        // nombre 15 b + 2     152
+                        archivoCantante.writeUTF(rellenarEspacios(nombre, 15));
+                        //System.out.println(pos);
+                        // anio de lanzamiento 4 b    156
+                        archivoCantante.writeInt(anioDeLanzamiento);
+                       // System.out.println(pos);
+                        //registro de disco 25 
+                        
+                        archivoCantante.close();
+                        break;
+                    }
+                }
+                pos += 379;
+                System.out.println("pos nuevo " + pos);
+
+            }
+
+            archivoCantante.close();
+        } catch (FileNotFoundException e1) {
+            System.out.println("Ruta no encontrada");
+        } catch (IOException e2) {
+            System.out.println("Error de lectura/escritura");
+        } catch (Exception e3) {
+            System.out.println("Error general: " + e3.getMessage());
+        }
+    }
+
+    @Override
+    public Disco readDisco(Cantante cantante, int codigoDisco) {
+        return cantante.buscarDisco(codigoDisco);
+    }
+
+    @Override
+    public void updateDisco(Cantante cantante, int codigo, String nombre, int anioDeLanzamiento) {
+        cantante.actualizarDisco(codigo, nombre, anioDeLanzamiento);
+    }
+
+    @Override
+    public void deleteDisco(Cantante cantante, int codigo) {
+        Disco d = this.readDisco(cantante, codigo);
+        cantante.eliminarDisco(d);
+    }
+
+    @Override
+    public List<Disco> findAllDisco(Cantante cantante) {
+        return cantante.listaDisco();
     }
 
 }
