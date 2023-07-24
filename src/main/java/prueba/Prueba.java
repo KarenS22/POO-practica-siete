@@ -20,7 +20,7 @@ public class Prueba {
             CompositorDAO compositorDAO = new CompositorDAO();
 //            compositorDAO.create(new Compositor(5, 1, "KAren1", "quito", 18, "Ecuador", 500));
 //            compositorDAO.create(new Compositor(5, 4, "KAren4", "quito", 18, "Ecuador", 500));
-//            compositorDAO.create(new Compositor(5, 2, "KAren3", "quito", 18, "Ecuador", 500));
+            compositorDAO.create(new Compositor(5, 2, "KAren3", "quito", 18, "Ecuador", 500));
 
 //compositorDAO.createCancion(1, 11, "Cancion1", "Letra de la cancion...", 3.51);
 

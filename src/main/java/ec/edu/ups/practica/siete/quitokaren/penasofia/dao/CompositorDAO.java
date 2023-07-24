@@ -94,12 +94,12 @@ public class CompositorDAO implements ICompositorDAO {
             archivoCompositor.writeInt(0);
             System.out.println(archivoCompositor.length());
             archivoCompositor.writeUTF(rellenarEspacios("", 960));
-            System.out.println(archivoCompositor.length());
+            System.out.println(archivoCompositor.length() + "termina las canciones");
 
             archivoCompositor.writeInt(0);
-            System.out.println(archivoCompositor.length());
+            System.out.println(archivoCompositor.length() + "se escribio el cont Cliente");
             archivoCompositor.writeUTF(rellenarEspacios("", 380));
-            System.out.println(archivoCompositor.length());
+            System.out.println(archivoCompositor.length() + "Se acabo todo el registro");
             archivoCompositor.seek(0);
             int contReg = archivoCompositor.readInt();
 
@@ -602,88 +602,297 @@ public class CompositorDAO implements ICompositorDAO {
 
     @Override
     public void agregarCliente(int codigoCompositor, Cantante cliente) {
-    try {
-        RandomAccessFile archivoCompositor;
-        archivoCompositor = new RandomAccessFile(ruta, "rw");
+        try {
+            RandomAccessFile archivoCompositor;
+            archivoCompositor = new RandomAccessFile(ruta, "rw");
 
-        archivoCompositor.seek(0);
-        int contReg = archivoCompositor.readInt();
-        System.out.println("contadorCompositor: " + contReg);
+            archivoCompositor.seek(0);
+            int contReg = archivoCompositor.readInt();
+            System.out.println("contadorCompositor: " + contReg);
 
-        long pos = 4;
+            long pos = 4;
 
-        for (int i = 0; i < contReg; i++) {
-            archivoCompositor.seek(pos);
-            int codigoL = archivoCompositor.readInt();
-            System.out.println(pos + "leida del compositor");
-            System.out.println("codigo " + codigoL);
-            if (codigoL == codigoCompositor) {
-                long posC = pos;
-                // 85
-                posC += 1051;
-                archivoCompositor.seek(posC);
-                System.out.println("pa ingresar cliente " + posC);
-                // 89
-                int contCliente = archivoCompositor.readInt();
-                System.out.println("contCliente " + posC + " xd " + contCliente);
-                if (contCliente <= 10) {
-
+            for (int i = 0; i < contReg; i++) {
+                archivoCompositor.seek(pos);
+                int codigoL = archivoCompositor.readInt();
+                System.out.println(pos + "leida del compositor");
+                System.out.println("codigo " + codigoL);
+                if (codigoL == codigoCompositor) {
+                    long posC = pos;
+                    // 1055
+                    posC += 1051 - 4;
                     archivoCompositor.seek(posC);
-                    archivoCompositor.writeInt(contCliente + 1);
-                    System.out.println(posC);
+                    System.out.println("pa ingresar cliente " + posC);
+                    // 89
+                    int contCliente = archivoCompositor.readInt();
+                    System.out.println("contCliente " + posC + " xd " + contCliente);
+                    if (contCliente <= 10) {
 
-                    if (contCliente + 1 > 1) {
-                        posC = (posC + 4) + (contCliente * 38);
                         archivoCompositor.seek(posC);
+                        archivoCompositor.writeInt(contCliente + 1);
+                        System.out.println(posC);
+
+                        if (contCliente + 1 > 1) {
+                            posC = (posC + 4) + (contCliente * 38);
+                            archivoCompositor.seek(posC);
+                        }
+                        // Código del cliente (4 bytes)
+                        archivoCompositor.writeInt(cliente.getCodigo());
+                        System.out.println(posC);
+
+                        // Nombre del cliente (15 bytes + 2 bytes de longitud)
+                        archivoCompositor.writeUTF(rellenarEspacios(cliente.getNombre(), 15));
+
+                        // Apellido del cliente (15 bytes + 2 bytes de longitud)
+                        archivoCompositor.writeUTF(rellenarEspacios(cliente.getApellido(), 15));
+
+                        archivoCompositor.close();
+                        break;
                     }
-                    // Código del cliente (4 bytes)
-                    archivoCompositor.writeInt(cliente.getCodigo());
-                    System.out.println(posC);
-
-                    // Nombre del cliente (15 bytes + 2 bytes de longitud)
-                    archivoCompositor.writeUTF(rellenarEspacios(cliente.getNombre(), 15));
-
-                    // Apellido del cliente (15 bytes + 2 bytes de longitud)
-                    archivoCompositor.writeUTF(rellenarEspacios(cliente.getApellido(), 15));
-
-                    archivoCompositor.close();
-                    break;
                 }
+                pos += 1433;
+                System.out.println("pos nuevo " + pos);
             }
-            pos += 1433;
-            System.out.println("pos nuevo " + pos);
+
+            archivoCompositor.close();
+        } catch (FileNotFoundException e1) {
+            System.out.println("Ruta no encontrada");
+        } catch (IOException e2) {
+            System.out.println("Error de lectura/escritura");
+        } catch (Exception e3) {
+            System.out.println("Error general: " + e3.getMessage());
         }
-
-        archivoCompositor.close();
-    } catch (FileNotFoundException e1) {
-        System.out.println("Ruta no encontrada");
-    } catch (IOException e2) {
-        System.out.println("Error de lectura/escritura");
-    } catch (Exception e3) {
-        System.out.println("Error general: " + e3.getMessage());
     }
-}
-
 
     @Override
-    public void actualizarCliente(int codigoCompositor, int codigoCantante, String nombre, String apellido) {
-        
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void actualizarCliente(int codigoCompositor, int idCliente, String nombre, String apellido) {
+        try {
+            RandomAccessFile archivoCompositor;
+            archivoCompositor = new RandomAccessFile(ruta, "rw");
+
+            archivoCompositor.seek(0);
+            int contReg = archivoCompositor.readInt();
+            System.out.println("contadorCompositor: " + contReg);
+            long pos = 4;
+
+            for (int i = 0; i < contReg; i++) {
+                archivoCompositor.seek(pos);
+                int codigoL = archivoCompositor.readInt();
+                System.out.println(pos + "leida del compositor");
+                System.out.println("codigo " + codigoL);
+                if (codigoL == codigoCompositor) {
+                    long posC = pos;
+                    // 127
+                    posC += 1051 - 4;
+                    archivoCompositor.seek(posC);
+                    System.out.println("pa ver cont cli " + posC);
+                    // 131
+                    int contCliente = archivoCompositor.readInt();
+                    System.out.println("contCli " + posC + " xd " + contCliente);
+                    long posBC = posC + 4;
+                    for (int j = 0; j < contCliente; j++) {
+                        archivoCompositor.seek(posBC);
+                        // 4 bytes para el código del cliente
+                        int codigoCliente = archivoCompositor.readInt();
+                        System.out.println(codigoCliente);
+                        if (codigoCliente == idCliente) {
+                            // Actualizamos los datos del cliente
+                            // 15 bytes + 2 bytes para el nombre del cliente
+                            archivoCompositor.writeUTF(rellenarEspacios(nombre, 15));
+                            // 15 bytes + 2 bytes para el apellido del cliente
+                            archivoCompositor.writeUTF(rellenarEspacios(apellido, 15));
+                            archivoCompositor.close();
+                            return;
+                        }
+                        posBC += 38;
+                    }
+                }
+                pos += 1433;
+                System.out.println("pos nuevo " + pos);
+            }
+            archivoCompositor.close();
+        } catch (FileNotFoundException e1) {
+            System.out.println("Ruta no encontrada");
+        } catch (IOException e2) {
+            System.out.println("Error de lectura/escritura: " + e2.getMessage());
+        } catch (Exception e3) {
+            System.out.println("Error general: " + e3.getMessage());
+        }
     }
 
     @Override
     public void eliminarCliente(int codigoCompositor, int codigoCliente) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            RandomAccessFile archivoCompositor;
+            archivoCompositor = new RandomAccessFile(ruta, "rw");
+
+            archivoCompositor.seek(0);
+            int contReg = archivoCompositor.readInt();
+            System.out.println("contadorCompositor: " + contReg);
+            long pos = 4;
+
+            for (int i = 0; i < contReg; i++) {
+                archivoCompositor.seek(pos);
+                int codigoL = archivoCompositor.readInt();
+                System.out.println(pos + "leida del compositor");
+                System.out.println("codigo " + codigoL);
+                if (codigoL == codigoCompositor) {
+                    long posC = pos;
+                    // 127
+                    posC += 1051 - 4;
+                    archivoCompositor.seek(posC);
+                    System.out.println("pa ver cont cli " + posC);
+                    // 131
+                    int contCliente = archivoCompositor.readInt();
+                    System.out.println("contCli " + posC + " xd " + contCliente);
+                    long posBC = posC + 4;
+                    for (int j = 0; j < contCliente; j++) {
+                        archivoCompositor.seek(posBC);
+                        // 4 bytes para el código del cliente
+                        int codigoC = archivoCompositor.readInt();
+                        System.out.println(codigoC);
+                        if (codigoC == codigoCliente) {
+                            // Eliminamos el cliente (canción) marcando el código como negativo
+                            archivoCompositor.seek(posBC);
+                            archivoCompositor.writeInt(-codigoCliente);
+                            // 15 bytes + 2 bytes para el nombre del cliente, marcado como vacío
+                            archivoCompositor.writeUTF(rellenarEspacios("", 15));
+                            // 15 bytes + 2 bytes para el apellido del cliente, marcado como vacío
+                            archivoCompositor.writeUTF(rellenarEspacios("", 15));
+                            archivoCompositor.close();
+                            return;
+                        }
+                        posBC += 38;
+                    }
+                }
+                pos += 1433;
+                System.out.println("pos nuevo " + pos);
+            }
+            archivoCompositor.close();
+        } catch (FileNotFoundException e1) {
+            System.out.println("Ruta no encontrada");
+        } catch (IOException e2) {
+            System.out.println("Error de lectura/escritura: " + e2.getMessage());
+        } catch (Exception e3) {
+            System.out.println("Error general: " + e3.getMessage());
+        }
     }
 
     @Override
     public List<Cantante> listarClientes(int codigoCompositor) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        List<Cantante> listaClientes = new ArrayList<>();
+        try {
+            RandomAccessFile archivoCompositor;
+            archivoCompositor = new RandomAccessFile(ruta, "rw");
+
+            archivoCompositor.seek(0);
+            int contReg = archivoCompositor.readInt();
+            System.out.println("contadorCompositor: " + contReg);
+            long pos = 4;
+
+            for (int i = 0; i < contReg; i++) {
+                archivoCompositor.seek(pos);
+                int codigoL = archivoCompositor.readInt();
+                System.out.println(pos + "leida del compositor");
+                System.out.println("codigo " + codigoL);
+                if (codigoL == codigoCompositor) {
+                    long posC = pos;
+                    // 127
+                    posC += 1051 - 4;
+                    archivoCompositor.seek(posC);
+                    System.out.println("pa ver cont cli " + posC);
+                    // 131
+                    int contCliente = archivoCompositor.readInt();
+                    System.out.println("contCli " + posC + " xd " + contCliente);
+                    long posBC = posC + 4;
+                    for (int j = 0; j < contCliente; j++) {
+                        archivoCompositor.seek(posBC);
+                        // 4 bytes para el código del cliente
+                        int codigoCliente = archivoCompositor.readInt();
+                        System.out.println(codigoCliente);
+                        if (codigoCliente > 0) { // Clientes con código positivo, es decir, que no han sido eliminados
+                            // 15 bytes + 2 bytes para el nombre del cliente
+                            String nombre = archivoCompositor.readUTF().trim();
+                            // 15 bytes + 2 bytes para el apellido del cliente
+                            String apellido = archivoCompositor.readUTF().trim();
+                            listaClientes.add(new Cantante(codigoCliente, nombre, apellido));
+                            System.out.println(listaClientes);
+                        }
+                        posBC += 38;
+                    }
+                }
+                pos += 1433;
+                System.out.println("pos nuevo " + pos);
+            }
+            archivoCompositor.close();
+        } catch (FileNotFoundException e1) {
+            System.out.println("Ruta no encontrada");
+        } catch (IOException e2) {
+            System.out.println("Error de lectura/escritura: " + e2.getMessage());
+        } catch (Exception e3) {
+            System.out.println("Error general: " + e3.getMessage());
+        }
+        return listaClientes;
     }
 
     @Override
     public Cantante buscarCli(int codigoCompositor, int idCliente) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            RandomAccessFile archivoCompositor;
+            archivoCompositor = new RandomAccessFile(ruta, "r");
+
+            archivoCompositor.seek(0);
+            int contReg = archivoCompositor.readInt();
+            System.out.println("contadorCompositor: " + contReg);
+            long pos = 4;
+
+            for (int i = 0; i < contReg; i++) {
+                archivoCompositor.seek(pos);
+                int codigoL = archivoCompositor.readInt();
+                System.out.println(pos + "leida del compositor");
+                System.out.println("codigo " + codigoL);
+                if (codigoL == codigoCompositor) {
+                    long posC = pos;
+                    // 127
+                    posC += 1051 - 4;
+                    archivoCompositor.seek(posC);
+                    System.out.println("pa ver cont cli " + posC);
+                    // 131
+                    int contCliente = archivoCompositor.readInt();
+                    System.out.println("contCli " + posC + " xd " + contCliente);
+                    long posBC = posC + 4;
+                    for (int j = 0; j < contCliente; j++) {
+                        archivoCompositor.seek(posBC);
+                        // 4 bytes para el código de la canción
+                        int codigoCliente = archivoCompositor.readInt();
+                        System.out.println(codigoCliente);
+                        if (codigoCliente == idCliente) {
+                            // Encontramos el cliente (canción) dentro del compositor
+                            // Leer los datos del cliente (canción)
+                            String nombre = archivoCompositor.readUTF().trim();
+                            String apellido = archivoCompositor.readUTF().trim();
+                            archivoCompositor.close();
+
+                            // Crear y retornar un nuevo objeto Cantante con los datos leídos
+                            return new Cantante(codigoCliente, nombre, apellido);
+                        }
+                        posBC += 38;
+                    }
+                }
+                pos += 1433;
+                System.out.println("pos nuevo " + pos);
+            }
+            archivoCompositor.close();
+        } catch (FileNotFoundException e1) {
+            System.out.println("Ruta no encontrada");
+        } catch (IOException e2) {
+            System.out.println("Error de lectura/escritura: " + e2.getMessage());
+        } catch (Exception e3) {
+            System.out.println("Error general: " + e3.getMessage());
+        }
+
+        // Si no se encontró el cliente, retornamos null
+        return null;
     }
 
 }

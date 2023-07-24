@@ -97,7 +97,8 @@ public class ControladorCompositor {
     public boolean ingresarCliente(int codigoCompositor, Cantante cantante) {
         Compositor c = this.buscar(codigoCompositor);
         if (c != null) {
-            c.agregarCliente(cantante);
+            System.out.println(cantante.getNombre());
+            compositorDAO.agregarCliente(codigoCompositor, cantante);
             compositorDAO.update(c);            
             return true;
         }
@@ -105,25 +106,24 @@ public class ControladorCompositor {
     }
     
     public Cantante verCliente(int codidoCompositor, int codigoCantante) {
-        Compositor c = this.buscar(codidoCompositor);
-        Cantante ca = c.buscarCli(codigoCantante);
+        Cantante ca = compositorDAO.buscarCli(codidoCompositor, codigoCantante);
         return ca;
     }
     
     public boolean actualizarCliente(int codidoCompositor, int codigoCantante, String nombre, String apellido) {
-        Cantante ca = this.verCliente(codidoCompositor, codigoCantante);
-        if (ca != null) {
-            this.compositor.actualizarCliente(codigoCantante, nombre, apellido);
+        Compositor c = this.buscar(codidoCompositor);
+        if (c != null) {
+            compositorDAO.actualizarCliente(codidoCompositor, codigoCantante, nombre, apellido);
             compositorDAO.update(compositor);
             return true;
         }
         return false;
     }
     
-    public boolean eliminarCliente(int codidoCompositor, int codigoCancion) {
-        Cancion cancion = this.verCancion(codidoCompositor, codigoCancion);
-        if (cancion != null){
-            this.compositor.eliminarCancion(cancion);
+    public boolean eliminarCliente(int codidoCompositor, int codigoCliente) {
+        Compositor c = this.buscar(codidoCompositor);
+        if (c != null){
+            compositorDAO.eliminarCliente(codidoCompositor, codigoCliente);
         compositorDAO.update(compositor);
         return true;
         }
@@ -131,8 +131,7 @@ public class ControladorCompositor {
     }
     
     public List<Cantante> verClientes(int codidoCompositor) {
-        Compositor c = this.buscar(codidoCompositor);
-        return c.listarClientes();
+        return compositorDAO.listarClientes(codidoCompositor);
     }
     
 }
