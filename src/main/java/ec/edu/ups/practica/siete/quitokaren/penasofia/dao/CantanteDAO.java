@@ -119,7 +119,7 @@ public class CantanteDAO implements ICantanteDAO {
             archivoLecturaCantante = new RandomAccessFile(ruta, "r");
             archivoLecturaCantante.seek(0);
             int contReg = archivoLecturaCantante.readInt();
-            System.out.println("Cont Can Buscar"+contReg);
+            System.out.println("Cont Can Buscar" + contReg);
             long pos = 4;
             // archivoLectura.seek(n);
 
@@ -192,6 +192,7 @@ public class CantanteDAO implements ICantanteDAO {
                     archivoCantante.writeInt(cantanteActualizado.getNumeroDeConciertos());
                     archivoCantante.writeInt(cantanteActualizado.getNumeroDeGiras());
                     archivoCantante.close();
+                    break;
                     //return true; // Actualización exitosa
                 }
                 pos += 379; // La longitud de cada registro es de 375 bytes
@@ -324,11 +325,11 @@ public class CantanteDAO implements ICantanteDAO {
 
             archivoCantante.seek(0);
             int contReg = archivoCantante.readInt();
-            System.out.println("contadorCantante: "+contReg);
+            System.out.println("contadorCantante: " + contReg);
             long pos = 4;
-            
+
             for (int i = 0; i < contReg; i++) {
-                
+
                 archivoCantante.seek(pos);
                 int codigoL = archivoCantante.readInt();
                 System.out.println(pos + "leida del can");
@@ -339,21 +340,22 @@ public class CantanteDAO implements ICantanteDAO {
                     //127  506
                     posD += 123;
                     archivoCantante.seek(posD);
-                    System.out.println("pa ingresar disco "+posD);
+                    System.out.println("pa ingresar disco " + posD);
                     //131
                     int contDisco = archivoCantante.readInt();
-                    System.out.println("contDisco "+posD + " xd "+contDisco);
+                    System.out.println("contDisco " + posD + " xd " + contDisco);
                     if (contDisco <= 10) {
                         //127
-                        
+
                         //131
                         archivoCantante.seek(posD);
                         archivoCantante.writeInt(contDisco + 1);
                         System.out.println(posD);
-                        
-                        if (contDisco+1 > 1){
-                            posD = posD + (contDisco*25);
+
+                        if (contDisco + 1 > 1) {
+                            posD = (posD + 4) + (contDisco * 25);
                             archivoCantante.seek(posD);
+
                         }
                         //codigo Disco 4 b   135
                         archivoCantante.writeInt(codigoDisco);
@@ -363,9 +365,9 @@ public class CantanteDAO implements ICantanteDAO {
                         //System.out.println(pos);
                         // anio de lanzamiento 4 b    156
                         archivoCantante.writeInt(anioDeLanzamiento);
-                       // System.out.println(pos);
+                        // System.out.println(pos);
                         //registro de disco 25 
-                        
+
                         archivoCantante.close();
                         break;
                     }
@@ -386,24 +388,251 @@ public class CantanteDAO implements ICantanteDAO {
     }
 
     @Override
-    public Disco readDisco(Cantante cantante, int codigoDisco) {
-        return cantante.buscarDisco(codigoDisco);
+    public Disco readDisco(int codigoC, int codigoDisco) {
+        try {
+            System.out.println(codigoC);
+            RandomAccessFile archivoCantante;
+            archivoCantante = new RandomAccessFile(ruta, "rw");
+
+            archivoCantante.seek(0);
+            int contReg = archivoCantante.readInt();
+            System.out.println("contadorCantante: " + contReg);
+            long pos = 4;
+
+            for (int i = 0; i < contReg; i++) {
+                archivoCantante.seek(pos);
+                int codigoL = archivoCantante.readInt();
+                System.out.println(pos + "leida del can");
+                //4 b   383
+                System.out.println("codigo " + codigoL);
+                if (codigoL == codigoC) {
+                    long posD = pos;
+                    //127  506
+                    posD += 123;
+                    archivoCantante.seek(posD);
+                    System.out.println("pa ver cont disco " + posD);
+                    //131
+                    int contDisco = archivoCantante.readInt();
+                    System.out.println("contDisco " + posD + " xd " + contDisco);
+                    long posBD = posD + 4;
+                    System.out.println("posBd " + posBD);
+                    for (int j = 0; j < contDisco; j++) {
+                        archivoCantante.seek(posBD);
+                        //131
+                        int codigoDB = archivoCantante.readInt();
+                        System.out.println(codigoDB);
+                        if (codigoDisco == codigoDB) {
+                            //148
+                            String nombreD = archivoCantante.readUTF().trim();
+                            //152
+                            int anioLanzamiento = archivoCantante.readInt();
+                            System.out.println(anioLanzamiento + "anio");
+                            archivoCantante.close();
+                            return new Disco(codigoDB, nombreD, anioLanzamiento);
+                        }
+                        posBD += 25;
+                    }
+                }
+                pos += 379;
+                System.out.println("pos nuevo " + pos);
+            }
+            archivoCantante.close();
+        } catch (FileNotFoundException e1) {
+            System.out.println("Ruta no encontrada");
+        } catch (IOException e2) {
+            System.out.println("Error de lectura/escritura");
+        } catch (Exception e3) {
+            System.out.println("Error general: " + e3.getMessage());
+        }
+        return null;
     }
 
     @Override
-    public void updateDisco(Cantante cantante, int codigo, String nombre, int anioDeLanzamiento) {
-        cantante.actualizarDisco(codigo, nombre, anioDeLanzamiento);
+    public void updateDisco(int codigoC, int codigo, String nombre, int anioDeLanzamiento) {
+        try {
+            System.out.println(codigoC);
+            RandomAccessFile archivoCantante;
+            archivoCantante = new RandomAccessFile(ruta, "rw");
+
+            archivoCantante.seek(0);
+            int contReg = archivoCantante.readInt();
+            System.out.println("contadorCantante: " + contReg);
+            long pos = 4;
+
+            for (int i = 0; i < contReg; i++) {
+                archivoCantante.seek(pos);
+                int codigoL = archivoCantante.readInt();
+                System.out.println(pos + "leida del can");
+                //4 b   383
+                System.out.println("codigo " + codigoL);
+                if (codigoL == codigoC) {
+                    long posD = pos;
+                    //127  506
+                    posD += 123;
+                    archivoCantante.seek(posD);
+                    System.out.println("pa ingresar disco " + posD);
+                    //131
+                    int contDisco = archivoCantante.readInt();
+                    System.out.println("contDisco " + posD + " xd " + contDisco);
+                    long posBD = posD + 4;
+                    for (int j = 0; j < contDisco; j++) {
+                        archivoCantante.seek(posBD);
+                        int codigoDB = archivoCantante.readInt();
+                        System.out.println(codigoDB);
+                        if (codigo == codigoDB) {
+                            archivoCantante.writeUTF(nombre);
+                            archivoCantante.writeInt(anioDeLanzamiento);
+                            archivoCantante.close();
+                            break;
+                        }
+                        posBD += 25;
+                    }
+                }
+                pos += 379;
+                System.out.println("pos nuevo " + pos);
+            }
+            archivoCantante.close();
+        } catch (FileNotFoundException e1) {
+            System.out.println("Ruta no encontrada");
+        } catch (IOException e2) {
+            System.out.println("Error de lectura/escritura");
+        } catch (Exception e3) {
+            System.out.println("Error general: " + e3.getMessage());
+        }
     }
 
     @Override
-    public void deleteDisco(Cantante cantante, int codigo) {
-        Disco d = this.readDisco(cantante, codigo);
-        cantante.eliminarDisco(d);
+    public void deleteDisco(int codigoCantante, int codigoDisco) {
+
+        try {
+            RandomAccessFile archivoCantante;
+            archivoCantante = new RandomAccessFile(ruta, "rw");
+
+            archivoCantante.seek(0);
+            int contReg = archivoCantante.readInt();
+            System.out.println("contadorCantante: " + contReg);
+            long pos = 4;
+
+            for (int i = 0; i < contReg; i++) {
+                archivoCantante.seek(pos);
+                int codigoL = archivoCantante.readInt();
+                System.out.println(pos + "leida del can");
+                // 4 b   383
+                System.out.println("codigo " + codigoL);
+                if (codigoL == codigoCantante) {
+                    long posD = pos;
+                    // 127  506
+                    posD += 123;
+                    archivoCantante.seek(posD);
+                    System.out.println("pa ingresar disco " + posD);
+                    // 131
+                    int contDisco = archivoCantante.readInt();
+                    System.out.println("contDisco " + posD + " xd " + contDisco);
+
+                    long posBD = posD + 4;
+                    for (int j = 0; j < contDisco; j++) {
+                        archivoCantante.seek(posBD);
+                        int codigoDB = archivoCantante.readInt();
+                        System.out.println("codigo del DISCO" + codigoDB);
+                        System.out.println(codigoDisco + "1==" + codigoDB);
+                        if (codigoDisco == codigoDB) {
+                            System.out.println(codigoDisco + "2==" + codigoDB);
+                            //archivoCantante.writeUTF(rellenarEspacios("", 23));
+                            // Eliminar el disco marcando el código como negativo
+                            archivoCantante.seek(posBD);
+                            archivoCantante.writeInt(-codigoDB);
+                            // 15 bytes + 2 para el nombre, marcado como vacío
+                            archivoCantante.writeUTF(rellenarEspacios("DISCO ELIMINADO", 15));
+                            // 4 bytes para el año de lanzamiento, marcado como -1
+                            archivoCantante.writeInt(-1);
+                            // Disminuir el contador de discos
+//                            archivoCantante.seek(posD);
+//                            archivoCantante.writeInt(contDisco - 1);
+
+                            archivoCantante.close();
+                            return; // Terminar el proceso, ya que se eliminó el disco
+                        }
+                        posBD += 25;
+                    }
+                }
+                pos += 379;
+                System.out.println("pos nuevo " + pos);
+            }
+
+            archivoCantante.close();
+        } catch (FileNotFoundException e1) {
+            System.out.println("Ruta no encontrada");
+        } catch (IOException e2) {
+            System.out.println("Error de lectura/escritura");
+        } catch (Exception e3) {
+            System.out.println("Error general: " + e3.getMessage());
+        } finally {
+            System.out.println("----------------------------");
+        }
+
+        //Disco d = this.readDisco(cantante, codigo);
+        // cantante.eliminarDisco(d);
     }
 
     @Override
-    public List<Disco> findAllDisco(Cantante cantante) {
-        return cantante.listaDisco();
+    public List<Disco> findAllDisco(int codigoC) {
+        List<Disco> listaDisco = new ArrayList<>();
+        try {
+            System.out.println(codigoC);
+            RandomAccessFile archivoCantante;
+            archivoCantante = new RandomAccessFile(ruta, "rw");
+
+            archivoCantante.seek(0);
+            int contReg = archivoCantante.readInt();
+            System.out.println("contadorCantante: " + contReg);
+            long pos = 4;
+
+            for (int i = 0; i < contReg; i++) {
+                archivoCantante.seek(pos);
+                int codigoL = archivoCantante.readInt();
+                System.out.println(pos + "leida del can");
+                //4 b   383
+                System.out.println("codigo " + codigoL);
+                if (codigoL == codigoC) {
+                    long posD = pos;
+                    //127  506
+                    posD += 123;
+                    archivoCantante.seek(posD);
+                    System.out.println("pa ver cont disco " + posD);
+                    //131
+                    int contDisco = archivoCantante.readInt();
+                    System.out.println("contDisco " + posD + " xd " + contDisco);
+                    long posBD = posD + 4;
+                    System.out.println("posBd " + posBD);
+                    for (int j = 0; j < contDisco; j++) {
+                        archivoCantante.seek(posBD);
+                        int codigoDB = archivoCantante.readInt();
+                        System.out.println(codigoDB + "bd");
+                        if (codigoDB > 0) { // Discos con código positivo, es decir, que no han sido eliminados
+                            
+                            String nombreD = archivoCantante.readUTF().trim();
+                            System.out.println("nombre "+ nombreD);
+                            int anioLanzamiento = archivoCantante.readInt();
+                            System.out.println("anio " + anioLanzamiento);
+                            listaDisco.add(new Disco(codigoDB, nombreD, anioLanzamiento));
+                            System.out.println(listaDisco);
+                            //break;
+                        }
+                        posBD += 25;
+                    }
+                }
+                pos += 379;
+                System.out.println("pos nuevo " + pos);
+            }
+            archivoCantante.close();
+        } catch (FileNotFoundException e1) {
+            System.out.println("Ruta no encontrada");
+        } catch (IOException e2) {
+            System.out.println("Error de lectura/escritura" + e2.getMessage());
+        } catch (Exception e3) {
+            System.out.println("Error general: " + e3.getMessage());
+        }
+        return listaDisco;
     }
 
 }

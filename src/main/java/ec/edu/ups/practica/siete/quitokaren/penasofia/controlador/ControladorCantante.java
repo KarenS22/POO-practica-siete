@@ -58,15 +58,14 @@ public class ControladorCantante {
 
     //posible modificacion
     public Disco verDisco(int codigoCa, int codigoD) {
-        Cantante c = this.buscar(codigoCa);
-        Disco d = cantanteDAO.readDisco(c, codigoD);
+        Disco d = cantanteDAO.readDisco(codigoCa, codigoD);
         return d;
     }
 
     public boolean actualizarDisco(int codigoCa, int codigoD, String nombre, int anioDeLanzamiento) {
         Cantante c = this.buscar(codigoCa);
         if (c != null){
-            cantanteDAO.updateDisco(c, codigoD, nombre, anioDeLanzamiento);
+            cantanteDAO.updateDisco(codigoCa, codigoD, nombre, anioDeLanzamiento);
             cantanteDAO.update(cantante);
             return true;
         }
@@ -76,7 +75,7 @@ public class ControladorCantante {
     public boolean eliminarDisco(int codigoCa, int codigoD) {
         Cantante c = this.buscar(codigoCa);
         if (c != null){
-            cantanteDAO.deleteDisco(c, codigoD);
+            cantanteDAO.deleteDisco(codigoCa, codigoD);
             cantanteDAO.update(cantante);
             return true;
         }
@@ -84,8 +83,7 @@ public class ControladorCantante {
     }
 
     public List<Disco> verDiscos(int codigoCa) {
-        Cantante c = this.buscar(codigoCa);
-        return cantanteDAO.findAllDisco(c);
+        return cantanteDAO.findAllDisco(codigoCa);
     }
 
     public Cantante buscarPorNombreDeDisco(String nombreD) {

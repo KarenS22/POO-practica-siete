@@ -15,9 +15,9 @@ public interface ICantanteDAO {
     public abstract Cantante buscarPorNombreDeDisco(String valor);
     
     public void createDisco (int codigoC, int codigo, String nombre, int anioDeLanzamiento);
-    public Disco readDisco(Cantante cantante, int codigo);
-    public void updateDisco(Cantante cantante,int codigo, String nombre, int anioDeLanzamiento);
-    public void deleteDisco(Cantante cantante, int codigo);
-    public List<Disco> findAllDisco(Cantante cantante);
+    public Disco readDisco(int codigoC, int codigo);
+    public void updateDisco(int codigoC,int codigo, String nombre, int anioDeLanzamiento);
+    public void deleteDisco(int codigoC, int codigo);
+    public List<Disco> findAllDisco(int codigoC);
 
 }

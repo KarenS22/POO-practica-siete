@@ -351,6 +351,7 @@ public class VentanaBuscarDisco extends javax.swing.JInternalFrame {
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         this.limpiarCampos();
+        this.cambiarEstadoCampos(true);
         this.setVisible(false);
     }//GEN-LAST:event_btnCancelarActionPerformed
 
