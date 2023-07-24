@@ -54,7 +54,7 @@ public class ControladorCompositor {
     public boolean ingresarCancion(int codigoCompositor, int codigoCancion, String titulo, String letra, double tiempoEnMinutos) {
         Compositor c = this.buscar(codigoCompositor);
         if (c != null) {
-            c.agregarCancion(codigoCancion, titulo, letra, tiempoEnMinutos);
+            compositorDAO.createCancion(codigoCompositor, codigoCancion, titulo, letra, tiempoEnMinutos);
             compositorDAO.update(c);
             return true;
         }
@@ -62,25 +62,24 @@ public class ControladorCompositor {
     }
     
     public Cancion verCancion(int codidoCompositor, int codigoCancion) {
-        Compositor c = this.buscar(codidoCompositor);
-        Cancion ca = c.buscarCancion(codigoCancion);
+        Cancion ca = compositorDAO.readCancion(codidoCompositor, codigoCancion);
         return ca;
     }
     
     public boolean actualizarCancion(int codigoCompositor, int codigoCancion, String titulo, String letra, double tiempoEnMinutos) {
-        Cancion cancion = this.verCancion(codigoCompositor, codigoCancion);
-        if (cancion != null) {
-            this.compositor.actualizarCancion(codigoCancion, titulo, letra, tiempoEnMinutos);
+        Compositor c = this.buscar(codigoCompositor);
+        if (c != null){
+            compositorDAO.updateCancion(codigoCompositor, codigoCancion, titulo, letra, tiempoEnMinutos);
             compositorDAO.update(compositor);
             return true;
         }
         return false;
     }
     
-    public boolean eliminarCancion(int codidoCompositor, int codigoCancion) {
-        Cancion cancion = this.verCancion(codidoCompositor, codigoCancion);
-        if (cancion != null) {
-            this.compositor.eliminarCancion(cancion);
+    public boolean eliminarCancion(int codigoCompositor, int codigoCancion) {
+        Compositor c = this.buscar(codigoCompositor);
+        if (c != null){
+            compositorDAO.deleteCancion(codigoCompositor, codigoCancion);
             compositorDAO.update(compositor);
             return true;
         }
@@ -88,9 +87,11 @@ public class ControladorCompositor {
     }
     
     public List<Cancion> verCanciones(int codidoCompositor) {
-        Compositor c = this.buscar(codidoCompositor);
-        return c.listarCanciones();
+        return compositorDAO.findAllCancion(codidoCompositor);
     }
+    
+    
+    
 //
 
     public boolean ingresarCliente(int codigoCompositor, Cantante cantante) {

@@ -163,7 +163,6 @@ public class CantanteDAO implements ICantanteDAO {
 
     @Override
     public void update(Cantante cantanteActualizado) {
-
         try {
             RandomAccessFile archivoCantante;
             archivoCantante = new RandomAccessFile(ruta, "rw");
